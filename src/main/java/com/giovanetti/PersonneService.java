@@ -9,7 +9,7 @@ import javax.ws.rs.core.Response;
 
 @Path("/personnes")
 @Produces({MediaType.APPLICATION_JSON})
-public class PersonneController {
+public class PersonneService {
 
     @Inject
     private PersonneRepository personneRepository;

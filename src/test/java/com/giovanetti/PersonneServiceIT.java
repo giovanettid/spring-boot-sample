@@ -28,7 +28,7 @@ import static org.assertj.core.api.Assertions.tuple;
 @SpringApplicationConfiguration(classes = RestApplication.class)
 @WebAppConfiguration
 @IntegrationTest({"server.port=0"}) //random unassigned port
-public class PersonneControllerIT {
+public class PersonneServiceIT {
 
     @Value("${local.server.port}") //actual random port
     private int port;
