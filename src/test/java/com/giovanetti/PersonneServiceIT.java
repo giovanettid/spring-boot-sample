@@ -53,7 +53,8 @@ public class PersonneServiceIT {
         List<Personne> response = Arrays.asList(template.getForObject(UriBuilder.
                 fromUri(baseUrl).path("/personnes/search").queryParam("nom", "nom1").build(), Personne[].class));
 
-        assertThat(response).hasSize(1).extracting("nom", "prenom").contains(tuple("nom1", "prenom1"));
+        assertThat(response).hasSize(1).extracting("nom", "prenom")
+                .contains(tuple("nom1", "prenom1"));
     }
 
     @Test
@@ -62,17 +63,19 @@ public class PersonneServiceIT {
                 fromUri(baseUrl).path("/personnes/search").queryParam("nom", "x").build(), ArrayList.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).hasSize(1).hasOnlyElementsOfType(Map.class);
-        assertThat((Map)response.getBody().get(0)).containsEntry("messageTemplate", "{javax.validation.constraints.Size.message}");
+        checkSizeViolation(response.getBody());
     }
+
 
     @Test
     public void postPersonne() {
         ResponseEntity response = template.postForEntity(UriBuilder.
-                fromUri(baseUrl).path("/personnes").build(), new Personne("prenom3", "nom3"),null);
+                fromUri(baseUrl).path("/personnes").build(), new Personne("prenom3", "nom3"), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(personneRepository.findAll()).hasSize(3).extracting("nom", "prenom").contains(tuple("nom3", "prenom3"));
+        assertThat(personneRepository.findAll()).hasSize(3)
+                .extracting("nom", "prenom")
+                .contains(tuple("nom3", "prenom3"));
     }
 
     @Test
@@ -81,8 +84,12 @@ public class PersonneServiceIT {
                 fromUri(baseUrl).path("/personnes").build(), new Personne("prenom3", "x"), ArrayList.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-        assertThat(response.getBody()).hasSize(1).hasOnlyElementsOfType(Map.class);
-        assertThat((Map)response.getBody().get(0)).containsEntry("messageTemplate",
+        checkSizeViolation(response.getBody());
+    }
+
+    private void checkSizeViolation(ArrayList<Map> body) {
+        assertThat(body).hasSize(1).hasOnlyElementsOfType(Map.class);
+        assertThat(body.get(0)).containsEntry("messageTemplate",
                 "{javax.validation.constraints.Size.message}");
     }
 
