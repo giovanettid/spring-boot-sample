@@ -13,7 +13,7 @@ public class RestApplication {
     public ResourceConfig jerseyConfig() {
         ResourceConfig resourceConfig = new ResourceConfig();
         resourceConfig.property(ServerProperties.BV_SEND_ERROR_IN_RESPONSE, true);
-        resourceConfig.packages(RestApplication.class.getPackage().getName());
+        resourceConfig.register(PersonneService.class);
         return resourceConfig;
     }
 

@@ -1,4 +1,4 @@
-FROM java:8
+FROM java:9
 
 COPY maven/spring-boot-sample*.jar /spring-boot-sample.jar
 COPY healthcheck.sh /healthcheck.sh

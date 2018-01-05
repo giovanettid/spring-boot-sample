@@ -4,14 +4,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.IntegrationTest;
-import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.boot.test.TestRestTemplate;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.web.client.RestTemplate;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
@@ -25,10 +23,10 @@ import static org.assertj.core.api.Assertions.tuple;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = RestApplication.class)
-@WebAppConfiguration
-@IntegrationTest({"server.port=0"}) //random unassigned port
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) //random unassigned port
 public class PersonneServiceIT {
+
+    private String baseUrl = "http://localhost:";
 
     @Value("${local.server.port}") //actual random port
     private int port;
@@ -36,13 +34,12 @@ public class PersonneServiceIT {
     @Inject
     private PersonneRepository personneRepository;
 
-    private String baseUrl = "http://localhost:";
-    private RestTemplate template;
+    @Inject
+    private TestRestTemplate template;
 
     @Before
     public void setUp() {
         this.baseUrl = "http://localhost:" + port;
-        template = new TestRestTemplate();
         personneRepository.deleteAll();
         personneRepository.save(new Personne("prenom1","nom1"));
         personneRepository.save(new Personne("prenom2","nom2"));
