@@ -1,4 +1,4 @@
-FROM java:9
+FROM openjdk:11-jre-slim
 
 COPY maven/spring-boot-sample*.jar /spring-boot-sample.jar
 COPY healthcheck.sh /healthcheck.sh
