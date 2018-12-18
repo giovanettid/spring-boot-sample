@@ -1,15 +1,14 @@
 package com.giovanetti;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.UriBuilder;
@@ -22,14 +21,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT) //random unassigned port
 public class PersonneServiceIT {
-
-    private String baseUrl = "http://localhost:";
-
-    @Value("${local.server.port}") //actual random port
-    private int port;
 
     @Inject
     private PersonneRepository personneRepository;
@@ -37,9 +31,8 @@ public class PersonneServiceIT {
     @Inject
     private TestRestTemplate template;
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        this.baseUrl = "http://localhost:" + port;
         personneRepository.deleteAll();
         personneRepository.save(new Personne("prenom1","nom1"));
         personneRepository.save(new Personne("prenom2","nom2"));
@@ -48,7 +41,7 @@ public class PersonneServiceIT {
     @Test
     public void findByNom() {
         List<Personne> response = Arrays.asList(template.getForObject(UriBuilder.
-                fromUri(baseUrl).path("/personnes/search").queryParam("nom", "nom1").build(), Personne[].class));
+                fromPath("/personnes/search").queryParam("nom", "nom1").build(), Personne[].class));
 
         assertThat(response).hasSize(1).extracting("nom", "prenom")
                 .contains(tuple("nom1", "prenom1"));
@@ -57,7 +50,7 @@ public class PersonneServiceIT {
     @Test
     public void findByNom_MinSizeViolation() {
         ResponseEntity<ArrayList> response = template.getForEntity(UriBuilder.
-                fromUri(baseUrl).path("/personnes/search").queryParam("nom", "x").build(), ArrayList.class);
+                fromPath("/personnes/search").queryParam("nom", "x").build(), ArrayList.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         checkSizeViolation(response.getBody());
@@ -67,7 +60,7 @@ public class PersonneServiceIT {
     @Test
     public void postPersonne() {
         ResponseEntity response = template.postForEntity(UriBuilder.
-                fromUri(baseUrl).path("/personnes").build(), new Personne("prenom3", "nom3"), null);
+                fromPath("/personnes").build(), new Personne("prenom3", "nom3"), null);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(personneRepository.findAll()).hasSize(3)
@@ -78,7 +71,7 @@ public class PersonneServiceIT {
     @Test
     public void postPersonne_MinSizeViolation() {
         ResponseEntity<ArrayList> response = template.postForEntity(UriBuilder.
-                fromUri(baseUrl).path("/personnes").build(), new Personne("prenom3", "x"), ArrayList.class);
+                fromPath("/personnes").build(), new Personne("prenom3", "x"), ArrayList.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         checkSizeViolation(response.getBody());
